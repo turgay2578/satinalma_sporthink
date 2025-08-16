@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Bilerek title ve meta etiketleri eklenmedi -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Merienda:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f4f5f8; --text:#d64040; --yes:#2bb673; --no:#ff6b35; --card:#ffffff; --shadow:0 10px 30px rgba(0,0,0,.10);
+    }
+    html,body{height:100%;}
+    body{
+      margin:0; font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background: radial-gradient(1200px 800px at 50% -200px, #ffe7e7 0%, transparent 60%), var(--bg);
+      color:#222; display:flex; align-items:center; justify-content:center;
+    }
+    .app{ text-align:center; padding:16px; }
+    .card{ background:var(--card); border-radius:20px; padding:24px 20px; box-shadow:var(--shadow); max-width:600px; width:100%; position:relative; overflow:hidden; }
+    h1{ margin:0 0 8px; font-size:clamp(22px,5vw,38px); font-family:'Merienda',cursive; font-weight:700; letter-spacing:.2px;
+        background:linear-gradient(90deg,#d64040,#ff8a65); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    h2{ margin:0 0 18px; font-size:clamp(16px,4vw,24px); font-weight:600; letter-spacing:.3px; color:var(--text); }
+    .buttons{ display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:center; margin-bottom:12px; position:relative; }
+    .btn{ border:0; padding:12px 20px; border-radius:12px; font-weight:700; cursor:pointer; font-size:clamp(16px,4vw,20px);
+          transition: transform .12s ease, box-shadow .12s ease; box-shadow:0 4px 12px rgba(0,0,0,.08); }
+    .btn:active{ transform:translateY(1px) scale(.98); }
+    .yes{ background:var(--yes); color:#fff; transition:transform .2s ease; }
+    .no{ background:var(--no); color:#fff; position:relative; }
+    .mascot{ width:min(260px,70vw); margin:10px auto 0; display:block; }
+    .heart{ position:absolute; left:50%; transform:translateX(-50%); top:58px; font-size:24px; animation:float 2.2s ease-in-out infinite; }
+    @keyframes float{ 0%{ transform:translate(-50%,0);} 50%{ transform:translate(-50%,-10px);} 100%{ transform:translate(-50%,0);} }
+
+    .modal{ position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; padding:16px; }
+    .modal.active{ display:flex; }
+    .modal .box{ background:#fff; width:min(92vw,480px); border-radius:20px; padding:20px; text-align:center; box-shadow:var(--shadow); }
+    .modal h3{ margin:0 0 12px; font-size:24px; }
+    .modal p{ margin:0 0 16px; font-size:16px; }
+    .modal .choices{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:12px; }
+    .choice-card{ display:flex; flex-direction:column; align-items:center; gap:10px; background:#f7f8fa; border:2px solid #e6e8ee; border-radius:14px; padding:12px;
+                  color:#111; font-weight:600; box-shadow:0 4px 10px rgba(0,0,0,.06); transition:transform .12s ease, box-shadow .12s ease; text-decoration:none; }
+    .choice-card:hover{ transform:translateY(-2px); box-shadow:0 8px 18px rgba(0,0,0,.10); }
+    .choice-card .thumb{ width:100%; aspect-ratio:16/10; border-radius:10px; overflow:hidden; background:#ddd; cursor:pointer; }
+    .choice-card .thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .choice-card .map-btn{ margin-top:4px; padding:9px 14px; border-radius:10px; background:#2b6cb0; color:#fff; text-decoration:none; font-size:14px; font-weight:700; transition:background .2s; display:inline-block; }
+    .choice-card .map-btn:hover{ background:#1a4d80; }
+    @media (max-width:520px){ .modal .choices{ grid-template-columns:1fr; } }
+
+    .confetti{ position:fixed; top:0; left:0; width:8px; height:14px; opacity:0.95; border-radius:2px; pointer-events:none; animation:fall linear forwards; }
+    @keyframes fall{ to{ transform:translate(var(--x),100vh) rotate(var(--r)); opacity:1; } }
+
+    /* Ayıcık şov */
+    .bear-overlay{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.35);
+                   opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:9999; }
+    .bear-overlay.active{ opacity:1; pointer-events:auto; }
+    .bear{ width:min(240px,65vw); height:auto; transform:scale(.6);
+           animation:pop .5s ease forwards, wiggle 1.2s ease-in-out .5s infinite; filter:drop-shadow(0 10px 24px rgba(0,0,0,.25)); }
+    @keyframes pop{ from{transform:scale(.1);} to{transform:scale(1);} }
+    @keyframes wiggle{ 0%,100%{ transform:scale(1) rotate(0deg);} 50%{ transform:scale(1.04) rotate(2deg);} }
+    .spark{ position:absolute; font-size:28px; animation:up 1.1s ease forwards; }
+    @keyframes up{ from{ transform:translateY(10px); opacity:0;} to{ transform:translateY(-30px); opacity:1;} }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="card" id="card">
+      <div class="heart">💗</div>
+      <h1 id="mainTitle">Seninle tanışıp bir kahve içmeliyiz</h1>
+      <h2>Bildiğim güzel bir mekan var</h2>
+
+      <div class="buttons" id="buttons">
+        <button class="btn yes" id="yesBtn">Evet</button>
+        <button class="btn no" id="noBtn">Hayır</button>
+      </div>
+
+      <!-- Sevimli penguen -->
+      <svg class="mascot" viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg" aria-label="sevimli penguen">
+        <circle cx="100" cy="125" r="80" fill="#f2f2f2" stroke="#333" stroke-width="5"/>
+        <ellipse cx="100" cy="160" rx="50" ry="40" fill="#fff"/>
+        <circle cx="75" cy="115" r="10" fill="#333"/>
+        <circle cx="125" cy="115" r="10" fill="#333"/>
+        <polygon points="100,130 90,150 110,150" fill="#ffb347"/>
+        <ellipse cx="70" cy="190" rx="20" ry="30" fill="#333"/>
+        <ellipse cx="130" cy="190" rx="20" ry="30" fill="#333"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="box">
+      <h3>Yaşasın! 💖</h3>
+      <p>Tanıştığımıza çok sevindim! Hadi bir kahveyle kutlayalım ☕</p>
+      <div class="choices">
+        <!-- Gracia -->
+        <div class="choice-card">
+          <div class="thumb" onclick="showBearAndRedirect('https://share.google/VFYAZVmxE2pFNomoD')">
+            <img loading="lazy" src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=70" alt="Gracia Coffee Co. iç mekan" />
+          </div>
+          Gracia Coffee Co.
+          <a class="map-btn" href="https://www.google.com/maps/place//data=!4m2!3m1!1s0x14bbd9b0b2306963:0x23c882beacf4a57a?sa=X&ved=1t:8290&ictx=111&cshid=1755369091930384" target="_blank" rel="noopener noreferrer">Konumu Gör</a>
+        </div>
+        <!-- Poka -->
+        <div class="choice-card">
+          <div class="thumb" onclick="showBearAndRedirect('https://share.google/stDKimiyYYL1qviPE')">
+            <img loading="lazy" src="https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=900&q=70" alt="Poka Coffee Roasters dış cephe" />
+          </div>
+          Poka Coffee Roasters
+          <a class="map-btn" href="https://www.google.com/maps/place//data=!4m2!3m1!1s0x14bbd844a18d9d31:0x9671390fdc58ae34?sa=X&ved=1t:8290&hl=tr&gl=tr&ictx=111" target="_blank" rel="noopener noreferrer">Konumu Gör</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ayıcık Şov Katmanı -->
+  <div id="bearOverlay" class="bear-overlay" aria-hidden="true">
+    <svg class="bear" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" aria-label="mutlu ayıcık">
+      <circle cx="90" cy="80" r="35" fill="#8d6e63"/>
+      <circle cx="210" cy="80" r="35" fill="#8d6e63"/>
+      <circle cx="150" cy="140" r="100" fill="#a1887f"/>
+      <circle cx="150" cy="160" r="70" fill="#d7ccc8"/>
+      <circle cx="120" cy="150" r="8" fill="#3e2723"/>
+      <circle cx="180" cy="150" r="8" fill="#3e2723"/>
+      <path d="M120 175 q30 25 60 0" stroke="#3e2723" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <ellipse cx="150" cy="165" rx="12" ry="8" fill="#5d4037"/>
+      <circle cx="95" cy="240" r="25" fill="#a1887f"/>
+      <circle cx="205" cy="240" r="25" fill="#a1887f"/>
+      <text x="150" y="40" text-anchor="middle" font-size="36">💖</text>
+    </svg>
+  </div>
+
+  <script>
+    const yesBtn  = document.getElementById('yesBtn');
+    const noBtn   = document.getElementById('noBtn');
+    const buttons = document.getElementById('buttons');
+    const modal   = document.getElementById('modal');
+    const bearOv  = document.getElementById('bearOverlay');
+
+    let yesScale = 1;
+    function moveNoButton(){
+      const c = buttons.getBoundingClientRect();
+      const b = noBtn.getBoundingClientRect();
+      const maxX = c.width - b.width, maxY = c.height - b.height;
+      const cardRect = document.getElementById('card').getBoundingClientRect();
+      const area = (maxX < 20 || maxY < 20) ? cardRect : c;
+      const x = Math.random() * ((area.width||c.width) - b.width);
+      const y = Math.random() * ((area.height||c.height) - b.height);
+      const parent = (area === cardRect) ? document.getElementById('card') : buttons;
+      if(noBtn.parentElement !== parent){ parent.appendChild(noBtn); }
+      parent.style.position = 'relative';
+      noBtn.style.position = 'absolute';
+      noBtn.style.left = x + 'px';
+      noBtn.style.top  = y + 'px';
+      if(yesScale < 10){ yesScale = Math.min(10, yesScale + 0.2); yesBtn.style.transform = `scale(${yesScale})`; }
+    }
+    noBtn.addEventListener('click', moveNoButton);
+
+    yesBtn.addEventListener('click', () => { modal.classList.add('active'); fireConfetti(180); });
+    modal.addEventListener('click', (e)=>{ if(e.target === modal) modal.classList.remove('active'); });
+
+    // Konfeti
+    function fireConfetti(count=120){
+      for(let i=0;i<count;i++){
+        const piece = document.createElement('div');
+        piece.className = 'confetti';
+        const startX = (Math.random()*100) + 'vw';
+        const rotate = (Math.random()*720 - 360) + 'deg';
+        piece.style.left = startX; piece.style.top = '-10px';
+        piece.style.background = `hsl(${Math.random()*360}, 85%, 60%)`;
+        const drift = (Math.random()*40 - 20) + 'vw';
+        piece.style.setProperty('--x', drift);
+        piece.style.setProperty('--r', rotate);
+        piece.style.animationDuration = (Math.random()*1 + 1.8) + 's';
+        piece.style.animationDelay = (Math.random()*0.2) + 's';
+        document.body.appendChild(piece);
+        setTimeout(()=> piece.remove(), 3500);
+      }
+    }
+
+    // Ayıcık şovu: 4 sn ekranda, sonra yönlendir
+    let bearBusy = false;
+    function showBearAndRedirect(url){
+      if(bearBusy) return;
+      bearBusy = true;
+      bearOv.classList.add('active');
+      fireConfetti(220); // patlasın 🎉
+
+      // Minik parıltılar
+      for(let i=0;i<12;i++){
+        const s = document.createElement('div');
+        s.className = 'spark';
+        s.textContent = ['✨','💛','🌟','💖'][Math.floor(Math.random()*4)];
+        s.style.left = (40 + Math.random()*20) + 'vw';
+        s.style.top  = (40 + Math.random()*20) + 'vh';
+        bearOv.appendChild(s);
+        setTimeout(()=> s.remove(), 1100);
+      }
+
+      setTimeout(()=>{
+        bearOv.classList.remove('active');
+        window.open(url,'_blank','noopener,noreferrer');
+        bearBusy = false;
+      }, 4000); // 4 saniye
+    }
+    window.showBearAndRedirect = showBearAndRedirect;
+  </script>
+</body>
+</html>
