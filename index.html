@@ -43,7 +43,12 @@
     }
     header h1 { margin: 0 0 6px; font-size: 28px }
     header h2 { margin: 0; font-weight: 500; color: var(--muted); font-size: 16px }
-    .product, .summary, .approvals { border-radius: 10px; padding: 14px; background: #ecf0f1; margin-top: 20px; }
+    .product, .summary, .approvals {
+      border-radius: 10px;
+      padding: 14px;
+      background: #ecf0f1;
+      margin-top: 20px;
+    }
     .summary { background: var(--warn-bg); border: 1px solid var(--warn-bd); }
     .savings { color: var(--good); font-weight: bold }
     table { width: 100%; border-collapse: collapse; margin-top: 20px }
@@ -65,11 +70,12 @@
   <script>
 function toggleEditable() {
   const inputs = document.querySelectorAll('.edit-link');
+  const editableCells = document.querySelectorAll('tbody td:not(.price):not(:has(input))');
   const isHidden = inputs[0]?.style.display === 'none';
   inputs.forEach(input => input.style.display = isHidden ? 'block' : 'none');
+  editableCells.forEach(cell => cell.setAttribute('contenteditable', isHidden));
   document.getElementById('toggleBtn').innerText = isHidden ? 'Düzenlemeyi Kilitle' : 'Verileri Düzenle';
 }
-
 function addNewRow() {
   const tbody = document.querySelector('table tbody');
   const newRow = document.createElement('tr');
@@ -78,28 +84,30 @@ function addNewRow() {
     <td contenteditable="true">Tedarikçi</td>
     <td contenteditable="true" class="price">0 TL</td>
     <td><span class="link-wrapper"><a class="link" href="#" target="_blank">Ürünü Gör</a><input type="text" class="edit-link" value="#" style="display:none; width:100%; margin-top:4px" oninput="this.previousElementSibling.href=this.value"></span></td>
+    <td><button onclick="deleteRow(this)" style="padding:6px 10px; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer">-</button></td>
   `;
   tbody.appendChild(newRow);
 }
+function deleteRow(btn) {
+  const row = btn.closest('tr');
+  if (row) row.remove();
+}
 </script>
 </head>
-<body>
+<body contenteditable="true">
   <div class="container">
     <div class="actions">
       <button id="toggleBtn" onclick="toggleEditable()">Verileri Düzenle</button>
     </div>
-
     <header>
       <h1>🔋 Honeywell EDA51 – Batarya & Şarj İstasyonu</h1>
       <h2>Satın Alma Karşılaştırma Tablosu</h2>
     </header>
-
-    <div class="product" data-editable contenteditable="false">
+    <div class="product" contenteditable="true">
       <p><strong>Talep:</strong> 4 adet batarya ve 1 adet 4'lü şarj istasyonu</p>
       <p><strong>Kullanım Alanı:</strong> Depo içi el terminali ekipmanları</p>
       <p><strong>Talep Eden:</strong> Anıl BALAT</p>
     </div>
-
     <table>
       <thead>
         <tr>
@@ -107,56 +115,34 @@ function addNewRow() {
           <th>Tedarikçi</th>
           <th>Fiyat (KDV Dahil)</th>
           <th>Link</th>
+          <th>İşlem</th>
         </tr>
       </thead>
       <tbody>
-        <tr class="best">
-          <td>EDA51 4’lü Şarj İstasyonu (1 Adet)</td>
-          <td class="supplier">Akbarkod</td>
-          <td class="price">9.850 TL</td>
+        <tr>
+          <td contenteditable="true">EDA51 4’lü Şarj İstasyonu (1 Adet)</td>
+          <td contenteditable="true">Akbarkod</td>
+          <td contenteditable="true" class="price">9.850 TL</td>
           <td><span class="link-wrapper"><a class="link" href="https://l24.im/RXYeG" target="_blank">Ürünü Gör</a><input type="text" class="edit-link" value="https://l24.im/RXYeG" style="display:none; width:100%; margin-top:4px" oninput="this.previousElementSibling.href=this.value"></span></td>
+          <td><button onclick="deleteRow(this)" style="padding:6px 10px; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer">-</button></td>
         </tr>
         <tr>
-          <td>EDA51 Batarya (4 Adet)</td>
-          <td class="supplier">Akbarkod</td>
-          <td class="price">14.760 TL</td>
+          <td contenteditable="true">EDA51 Batarya (4 Adet)</td>
+          <td contenteditable="true">Akbarkod</td>
+          <td contenteditable="true" class="price">14.760 TL</td>
           <td><span class="link-wrapper"><a class="link" href="https://l24.im/1INpQ" target="_blank">Ürünü Gör</a><input type="text" class="edit-link" value="https://l24.im/1INpQ" style="display:none; width:100%; margin-top:4px" oninput="this.previousElementSibling.href=this.value"></span></td>
-        </tr>
-        <tr>
-          <td>EDA51 4’lü Şarj İstasyonu (1 Adet)</td>
-          <td class="supplier">Barkodpro</td>
-          <td class="price">9.850 TL</td>
-          <td><a class="link" href="https://l24.im/3FYLMgl" target="_blank" data-editable contenteditable="false">Ürünü Gör</a></td>
-        </tr>
-        <tr>
-          <td>EDA51 Batarya (4 Adet)</td>
-          <td class="supplier">Barkodpro</td>
-          <td class="price">14.760 TL</td>
-          <td><a class="link" href="https://l24.im/02WAd3G" target="_blank" data-editable contenteditable="false">Ürünü Gör</a></td>
-        </tr>
-        <tr>
-          <td>EDA51 4’lü Şarj İstasyonu (1 Adet)</td>
-          <td class="supplier">Kıvılcım Etiket</td>
-          <td class="price">9.875 TL</td>
-          <td><a class="link" href="https://l24.im/N90U" target="_blank" data-editable contenteditable="false">Ürünü Gör</a></td>
-        </tr>
-        <tr>
-          <td>EDA51 Batarya (4 Adet)</td>
-          <td class="supplier">Kıvılcım Etiket</td>
-          <td class="price">14.800 TL</td>
-          <td><a class="link" href="https://l24.im/47Yy" target="_blank" data-editable contenteditable="false">Ürünü Gör</a></td>
+          <td><button onclick="deleteRow(this)" style="padding:6px 10px; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer">-</button></td>
         </tr>
       </tbody>
-    <tfoot>
-  <tr>
-    <td colspan="4" style="text-align:right; padding-top:12px">
-      <button onclick="addNewRow()" style="padding:8px 14px; border-radius:8px; background:var(--brand); color:white; font-weight:bold; border:none; cursor:pointer">+ Satır Ekle</button>
-    </td>
-  </tr>
-</tfoot>
-</table>
-
-    <div class="summary" data-editable contenteditable="false">
+      <tfoot>
+        <tr>
+          <td colspan="5" style="text-align:right; padding-top:12px">
+            <button onclick="addNewRow()" style="padding:8px 14px; border-radius:8px; background:var(--brand); color:white; font-weight:bold; border:none; cursor:pointer">+ Satır Ekle</button>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="summary">
       <h3>📊 Özet:</h3>
       <ul>
         <li><strong>En Uygun Şarj Fiyatı:</strong> 9.850 TL</li>
@@ -166,12 +152,11 @@ function addNewRow() {
       </ul>
       <p>Stok durumu, teslim süresi ve garanti koşulları değerlendirilerek <strong class="savings">Akbarkod</strong> veya <strong class="savings">Barkodpro</strong> tercih edilebilir.</p>
     </div>
-
-    <section class="approvals" data-editable contenteditable="false">
-      <div class="sig"><div class="title">Talep Eden</div></div>
-      <div class="sig"><div class="title">Satın Alma</div></div>
-      <div class="sig"><div class="title">Muhasebe / Finans</div></div>
-      <div class="sig"><div class="title">Onaylayan</div></div>
+    <section class="approvals">
+      <div class="sig" contenteditable="true"><div class="title">Talep Eden</div></div>
+      <div class="sig" contenteditable="true"><div class="title">Satın Alma</div></div>
+      <div class="sig" contenteditable="true"><div class="title">Muhasebe / Finans</div></div>
+      <div class="sig" contenteditable="true"><div class="title">Onaylayan</div></div>
     </section>
   </div>
 </body>
